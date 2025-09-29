@@ -7,7 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("firstService")
-public class FirstServiceImpl implements ServiceDto {
+public class FirstServiceImpl {
+//public class FirstServiceImpl implements ServiceDto {
     private final FirstRepository firstRepository;
 
     public FirstServiceImpl(FirstRepository firstRepository) {
@@ -15,7 +16,7 @@ public class FirstServiceImpl implements ServiceDto {
     }
 
 
-    @Override
+//    @Override
     public String getData() {
         return firstRepository.getData();
     }

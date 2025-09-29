@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("cardStatusService")
-public class CardStatusServiceImpl implements ServiceDto {
+public class CardStatusServiceImpl {
+//public class CardStatusServiceImpl implements ServiceDto {
 
     private final CardStatusRepository cardStatusRepository;
     private final CardStatusMapper cardStatusMapper;
@@ -18,7 +19,7 @@ public class CardStatusServiceImpl implements ServiceDto {
     }
 
 
-    @Override
+//    @Override
     public String getData() {
         return cardStatusRepository.getData();
     }
