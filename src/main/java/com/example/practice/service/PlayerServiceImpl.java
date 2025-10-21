@@ -4,9 +4,11 @@ import com.example.practice.model.Player;
 import com.example.practice.repository.PlayerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service("playerService")
 public class PlayerServiceImpl implements ServiceInterface<Long, Player> {
 
     private PlayerRepository repository;
@@ -49,9 +51,14 @@ public class PlayerServiceImpl implements ServiceInterface<Long, Player> {
 
     @Override
     public Player addNew(Player entity) {
-        if(entity == null || entity.getId() == null){
+        if(entity == null){
             throw new EntityNotFoundException("Передаваемые параметры не должны быть нулевыми");
         }
+
+        // Убедитесь, что ID null для новой сущности -- вот тут непонятно
+        entity.setId(null);
+//        ----
+
         return repository.save(entity);
     }
 }

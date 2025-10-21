@@ -1,6 +1,8 @@
 package com.example.practice.controller;
 
+import com.example.practice.service.FirstServiceImpl;
 import com.example.practice.service.ServiceDto;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping({"/api", "/api/"})
 public class FirstController {
-    private final ServiceDto firstService;
+    private final FirstServiceImpl firstService;
 
 
-    public FirstController(ServiceDto firstService) {
+    public FirstController(FirstServiceImpl firstService) {
         this.firstService = firstService;
     }
 
