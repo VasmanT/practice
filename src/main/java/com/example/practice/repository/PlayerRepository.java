@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository("playerRepository")
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     default String getData() {
-        return "крутые данные, - version2(03.12.2025) "+ count();
+        return "крутые данные, - version2(03.12.2025) /br "+ count();
     }
 }
