@@ -2,31 +2,31 @@ package com.example.practice.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
+import static jakarta.persistence.GenerationType.*;
 
 @Entity
-@Table(name = "player")
+@Table(name = "players")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Player {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     @Schema(description = "Уникальный идентификатор игрока", example = "1")
     private Long id;
 
-    @Column(name = "firstName")
+    @Column(name = "first_name")
     @Schema(description = "Имя игрока", example = "Максим")
     private String firstName;
 
-    @Column(name = "lastName")
+    @Column(name = "last_name")
     @Schema(description = "Фамилия игрока", example = "Максимов")
     private String lastName;
 
@@ -38,15 +38,15 @@ public class Player {
     @Schema(description = "Пол игрока", example = "man")
     private String gender;
 
-    @Column(name = "gameNumber")
+    @Column(name = "game_number")
     @Schema(description = "Игровой номер игрока", example = "11")
     private byte gameNumber;
 
-    @Column(name = "birthDay")
+    @Column(name = "birth_day")
     @Schema(description = "Дата рождения игрока", example = "2022, 1, 27")
     private LocalDate birthDay;
 
-    @Column(name = "cityPlayer")
+    @Column(name = "city_player")
     @Schema(description = "Город проживания игрока", example = "Кострома")
     private String cityPlayer;
 }
