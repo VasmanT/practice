@@ -1,6 +1,7 @@
 package com.example.practice.controller;
 
 import com.example.practice.model.Player;
+import com.example.practice.service.PlayerService;
 import com.example.practice.service.PlayerServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,10 +17,15 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 @RequestMapping({"/api/players", "/api/players/"})
 public class PlayerController {
+//
+//    public final PlayerServiceImpl playerService;
+//
+//    public PlayerController(@Qualifier("playerService") PlayerServiceImpl playerService) {
+//        this.playerService = playerService;
+//    }
+    public final PlayerService playerService;
 
-    public final PlayerServiceImpl playerService;
-
-    public PlayerController(@Qualifier("playerService") PlayerServiceImpl playerService) {
+    public PlayerController(PlayerService playerService) {
         this.playerService = playerService;
     }
 
@@ -33,6 +39,7 @@ public class PlayerController {
     @GetMapping("/{id}")
     public ResponseEntity<Player> getById(@PathVariable("id") Long id) {
         return ok(playerService.getById(id));
+//        return ok(playerService.getById(id));
     }
 
     @Operation(summary = "Получить всех игроков")

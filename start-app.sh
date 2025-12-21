@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 # Функция для остановки Java-процесса
 stop_application() {
     echo "Остановка приложения..."
@@ -19,6 +21,18 @@ start_application() {
     export APP_PID=$!
     echo "Приложение запущено с PID: $APP_PID"
 }
+
+# Определяем профиль (по умолчанию dev)
+#PROFILE=${SPRING_PROFILE:-dev}
+
+# Функция для запуска приложения
+#start_application() {
+#    echo "Запуск приложения с профилем: $PROFILE"
+#    java -jar -Dspring.profiles.active=$PROFILE /app/app.jar &
+#    export APP_PID=$!
+#    echo "Приложение запущено с PID: $APP_PID и профилем: $PROFILE"
+#}
+
 
 # Начальный запуск (если jar существует)
 if [ -f /app/app.jar ]; then

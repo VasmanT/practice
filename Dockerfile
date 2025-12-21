@@ -18,6 +18,9 @@ FROM openjdk:17-jdk-slim
 LABEL authors="Vasman"
 WORKDIR /app
 
+# Установка переменной окружения по умолчанию
+#ENV SPRING_PROFILES_ACTIVE=dev
+
 # Копируем скрипт запуска
 COPY start-app.sh /app/
 RUN chmod +x /app/start-app.sh

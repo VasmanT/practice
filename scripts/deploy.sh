@@ -7,6 +7,8 @@ CONTAINER_ID="${1:-9ea}"
 PROJECT_ROOT="$(cd .. && pwd)"  # Переходим на уровень выше от scripts/
 JAR_PATH="${2:-$PROJECT_ROOT/target/practice-0.0.1-SNAPSHOT.jar}"
 TARGET_PATH="/app/app.jar"
+#PROFILE="${3:-prod}"  # Профиль по умолчанию: prod
+PROFILE="${3:-dev}"  # Профиль по умолчанию: prod
 
 # Цвета для вывода
 RED='\033[0;31m'
@@ -67,13 +69,59 @@ main() {
     docker cp "$JAR_PATH" "${CONTAINER_ID}:${TARGET_PATH}"
     print_success "Файл скопирован в контейнер"
 
-    # Запускаем контейнер
-    print_info "4. Запускаем контейнер $CONTAINER_ID..."
+    # Останавливаем контейнер
+    print_info "4. Останавливаем контейнер для изменения конфигурации..."
+    docker stop "$CONTAINER_ID"
+
+#    # Запускаем контейнер
+#    print_info "4. Запускаем контейнер $CONTAINER_ID..."
+#    docker start "$CONTAINER_ID"
+#    print_success "Контейнер запущен"
+#
+#    print_success "=== Деплой успешно завершен! ==="
+#    print_info "Контейнер $CONTAINER_ID запущен с обновленной версией приложения"
+
+    # Запускаем контейнер с новыми параметрами
+    print_info "5. Запускаем контейнер $CONTAINER_ID с профилем $PROFILE..."
+
+    # Запускаем контейнер с нужными параметрами
     docker start "$CONTAINER_ID"
-    print_success "Контейнер запущен"
+
+
+# Запускаем контейнер с профилем
+#    print_info "5. Запускаем контейнер $CONTAINER_ID с профилем $PROFILE..."
+#    docker start "$CONTAINER_ID"
+#
+#    # Ждем немного для запуска контейнера
+#    sleep 2
+#
+##    # Запускаем приложение внутри контейнера с указанным профилем
+#    print_info "6. Запускаем приложение внутри контейнера..."
+#    docker exec -d "$CONTAINER_ID" java -jar $TARGET_PATH --spring.profiles.active=$PROFILE
+##
+#    print_success "=== Деплой успешно завершен! ==="
+#    print_info "Контейнер $CONTAINER_ID запущен с профилем $PROFILE"
+#    print_info "Для проверки выполните:"
+#    print_info "  docker logs $CONTAINER_ID"
+#    print_info "  curl http://localhost:8089/api/info/profile"
+
+    # Изменяем команду запуска внутри контейнера
+    print_info "6. Настраиваем запуск приложения с профилем $PROFILE..."
+
+    # Создаем скрипт запуска с профилем
+    DOCKER_EXEC_CMD="java -jar $TARGET_PATH --spring.profiles.active=$PROFILE"
+    docker exec "$CONTAINER_ID" sh -c "echo '$DOCKER_EXEC_CMD' > /app/start.sh && chmod +x /app/start.sh"
+
+    # Останавливаем текущий процесс если он есть
+    docker exec "$CONTAINER_ID" pkill -f "java.*jar" || true
+
+    # Запускаем новый процесс
+    docker exec -d "$CONTAINER_ID" /app/start.sh
 
     print_success "=== Деплой успешно завершен! ==="
-    print_info "Контейнер $CONTAINER_ID запущен с обновленной версией приложения"
+    print_info "Проверьте логи: docker logs $CONTAINER_ID"
+    print_info "Проверьте процесс: docker exec $CONTAINER_ID ps aux"
+
 }
 
 main "$@"

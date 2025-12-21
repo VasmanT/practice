@@ -8,8 +8,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-@Service("playerService")
-public class PlayerServiceImpl {
+@Service
+public class PlayerServiceImpl implements PlayerService {
 
     private final PlayerRepository repository;
 
@@ -19,10 +19,8 @@ public class PlayerServiceImpl {
     }
 
     public String getData() {
-
         return repository.getData();
     }
-
 
     public Player updateById(Player entity) {
         if (entity == null || entity.getId() == null) {
