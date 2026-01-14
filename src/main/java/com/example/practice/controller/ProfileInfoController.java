@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/info")
 public class ProfileInfoController {
 
+//    @Value("${spring.profiles.active}")
     @Value("${spring.profiles.active}")
     private String activeProfile;
 

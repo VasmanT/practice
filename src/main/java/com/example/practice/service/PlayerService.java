@@ -5,6 +5,7 @@ import com.example.practice.model.Player;
 import java.util.List;
 
 public interface PlayerService {
+
     public String getData();
     public List<Player> getAll();
     public void deleteByID(Long id);
