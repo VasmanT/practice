@@ -265,6 +265,8 @@ main() {
     print_info "3. Копируем JAR файл в контейнер..."
     if docker cp "$JAR_PATH" "${CONTAINER_ID}:/app/app.jar"; then
         print_success "JAR файл успешно скопирован в контейнер"
+                print_success "$JAR_PATH"
+                print_success "${CONTAINER_ID}"
     else
         print_error "Ошибка при копировании JAR файла"
         exit 1
