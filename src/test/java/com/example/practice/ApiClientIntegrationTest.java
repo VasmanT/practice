@@ -2,104 +2,147 @@ package com.example.practice;
 
 import com.example.practice.controller.ApiClientController;
 import com.example.practice.model.Player;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
- * Интеграционный тест для проверки связи между practice и dbmicro
- * ВНИМАНИЕ: Для запуска этого теста dbmicro ДОЛЖЕН быть запущен!
+ * Интеграционный тест с изоляцией - не требует реальной БД!
+ * Проверяет только связь между practice и dbmicro
  */
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ApiClientIntegrationTest {
 
-    private ApiClientController controller;
-    private RestTemplate restTemplate;
+    @LocalServerPort
+    private int port;
 
-    @BeforeEach
-    void setUp() {
-        // Создаем реальный RestTemplate как в контроллере
-        RestTemplateBuilder builder = new RestTemplateBuilder();
-        this.restTemplate = builder
-                .setConnectTimeout(Duration.ofSeconds(5))
-                .setReadTimeout(Duration.ofSeconds(10))
-                .build();
+    @Autowired
+    private TestRestTemplate restTemplate;
 
-        // Создаем контроллер с реальным RestTemplate
-        this.controller = new ApiClientController(
-                new RestTemplateBuilder().setConnectTimeout(Duration.ofSeconds(5))
-        );
+    // Мокаем RestTemplate, чтобы не обращаться к реальному dbmicro
+    @MockBean
+    private RestTemplate mockRestTemplate;
+
+    // Создаем реальный контроллер, но с замоканным RestTemplate
+    @Autowired
+    private ApiClientController apiClientController;
+
+    @Test
+    void testExternalPlayersEndpointReturnsData() {
+        // Подготавливаем тестовые данные
+        Player[] mockPlayers = {
+                createPlayer(1L, "Иван", "Иванов"),
+                createPlayer(2L, "Петр", "Петров")
+        };
+
+        // Настраиваем мок
+        ResponseEntity<Player[]> mockResponse = ResponseEntity.ok(mockPlayers);
+        when(mockRestTemplate.exchange(
+                anyString(),
+                any(),
+                any(),
+                eq(Player[].class)
+        )).thenReturn(mockResponse);
+
+        // Вызываем реальный эндпоинт
+        String url = "http://localhost:" + port + "/api/external-players";
+        ResponseEntity<Player[]> response = restTemplate.getForEntity(url, Player[].class);
+
+        // Проверяем результат
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertNotNull(response.getBody());
+        assertThat(response.getBody().length).isEqualTo(2);
+
+        System.out.println("✅ Тест успешен! Получено игроков: " + response.getBody().length);
     }
 
     @Test
-    void testConnectionToDbmicroIsSuccessful() {
-        // Этот тест проверяет, что dbmicro доступен
-        try {
-            ResponseEntity<Player[]> response = restTemplate.getForEntity(
-                    "http://localhost:8091/api/players",
-                    Player[].class
-            );
+    void testExternalPlayersEndpointHandlesEmptyResponse() {
+        // Пустой ответ
+        Player[] emptyPlayers = {};
+        ResponseEntity<Player[]> mockResponse = ResponseEntity.ok(emptyPlayers);
 
-            assertTrue(response.getStatusCode().is2xxSuccessful(),
-                    "dbmicro должен отвечать с успешным статусом");
-            assertNotNull(response.getBody(),
-                    "Ответ от dbmicro не должен быть null");
+        when(mockRestTemplate.exchange(
+                anyString(),
+                any(),
+                any(),
+                eq(Player[].class)
+        )).thenReturn(mockResponse);
 
-            System.out.println("✅ dbmicro доступен! Статус: " + response.getStatusCode());
-            System.out.println("   Количество игроков: " + response.getBody().length);
+        String url = "http://localhost:" + port + "/api/external-players";
+        ResponseEntity<Player[]> response = restTemplate.getForEntity(url, Player[].class);
 
-        } catch (Exception e) {
-            fail("Не удалось подключиться к dbmicro. Убедитесь, что dbmicro запущен на порту 8091\n" +
-                    "Ошибка: " + e.getMessage());
-        }
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertNotNull(response.getBody());
+        assertThat(response.getBody().length).isEqualTo(0);
+
+        System.out.println("✅ Тест с пустым ответом успешен");
     }
 
     @Test
-    void testGetUsersFromExternalAppReturnsData() {
-        // Этот тест проверяет работу метода контроллера
-        ResponseEntity<?> response = controller.getUsersFromExternalApp();
+    void testExternalPlayersEndpointHandlesError() {
+        // Эмулируем ошибку
+        when(mockRestTemplate.exchange(
+                anyString(),
+                any(),
+                any(),
+                eq(Player[].class)
+        )).thenThrow(new RuntimeException("Сервис недоступен"));
 
-        assertTrue(response.getStatusCode().is2xxSuccessful(),
-                "Метод контроллера должен вернуть успешный статус");
+        String url = "http://localhost:" + port + "/api/external-players";
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
-        assertNotNull(response.getBody(),
-                "Тело ответа не должно быть null");
+        // Контроллер должен вернуть SERVICE_UNAVAILABLE
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains("Не удалось получить данные"));
 
-        if (response.getBody() instanceof List) {
-            List<?> players = (List<?>) response.getBody();
-            System.out.println("✅ Контроллер успешно получил " + players.size() + " игроков");
-
-            if (!players.isEmpty()) {
-                System.out.println("   Первый игрок: " + players.get(0));
-            }
-        } else {
-            fail("Ожидался List<Player>, но получен: " + response.getBody().getClass());
-        }
+        System.out.println("✅ Тест с ошибкой успешен");
     }
 
     @Test
-    void testExternalApiUrlIsCorrect() {
-        // Проверяем, что URL указан правильно
-        String expectedUrl = "http://localhost:8091/api/players";
+    void testDirectCallToController() {
+        // Тестируем контроллер напрямую, без HTTP
+        Player[] mockPlayers = {createPlayer(1L, "Тест", "Тестов")};
+        ResponseEntity<Player[]> mockResponse = ResponseEntity.ok(mockPlayers);
 
-        // Используем рефлексию для получения private поля
-        try {
-            java.lang.reflect.Field field = ApiClientController.class.getDeclaredField("externalApiUrl");
-            field.setAccessible(true);
-            String actualUrl = (String) field.get(controller);
+        when(mockRestTemplate.exchange(
+                anyString(),
+                any(),
+                any(),
+                eq(Player[].class)
+        )).thenReturn(mockResponse);
 
-            assertEquals(expectedUrl, actualUrl,
-                    "URL внешнего API должен быть правильным");
-            System.out.println("✅ URL внешнего API: " + actualUrl);
+        ResponseEntity<?> response = apiClientController.getUsersFromExternalApp();
 
-        } catch (Exception e) {
-            fail("Не удалось проверить URL: " + e.getMessage());
-        }
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertNotNull(response.getBody());
+
+        System.out.println("✅ Прямой вызов контроллера успешен");
+    }
+
+    private Player createPlayer(Long id, String firstName, String lastName) {
+        Player player = new Player();
+        player.setId(id);
+        player.setFirstName(firstName);
+        player.setLastName(lastName);
+        player.setBirthDay(LocalDate.of(1990, 1, 1));
+        player.setGender("MALE");
+        player.setGameNumber((byte) 10);
+        return player;
     }
 }

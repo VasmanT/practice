@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 
 public class RestTemplateConnectionTest {
 
-    private static final String BASE_URL = "http://localhost:8091";
+    private static final String BASE_URL = "http://localhost:8089";
     private static final RestTemplate restTemplate = new RestTemplate();
 
     public static void main(String[] args) {
@@ -31,7 +31,7 @@ public class RestTemplateConnectionTest {
         System.out.println("----------------------------------");
 
         try {
-            String healthUrl = BASE_URL + "/api/health";
+            String healthUrl = BASE_URL + "/api/external-players";
             ResponseEntity<String> response = restTemplate.getForEntity(healthUrl, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
@@ -58,7 +58,7 @@ public class RestTemplateConnectionTest {
         System.out.println("----------------------------------");
 
         try {
-            String playersUrl = BASE_URL + "/api/players";
+            String playersUrl = BASE_URL + "/api/external-players";
 
             // Используем exchange для получения полной информации
             ResponseEntity<String> response = restTemplate.getForEntity(playersUrl, String.class);
@@ -114,7 +114,7 @@ public class RestTemplateConnectionTest {
             long startTime = System.currentTimeMillis();
 
             try {
-                String playersUrl = BASE_URL + "/api/players";
+                String playersUrl = BASE_URL + "/api/external-players";
                 ResponseEntity<String> response = customRestTemplate.getForEntity(playersUrl, String.class);
 
                 long endTime = System.currentTimeMillis();
