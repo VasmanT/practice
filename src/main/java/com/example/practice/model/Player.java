@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import static jakarta.persistence.GenerationType.*;
 
+//todo: преобразовать в Record, почистить
 @Entity
 @Table(name = "players")
 @Getter
