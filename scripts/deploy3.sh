@@ -3,12 +3,12 @@
 set -e
 
 # Параметры
-CONTAINER_ID="${1:-9ea}"
+CONTAINER_ID="${1:-61a}"
 PROJECT_ROOT="$(cd .. && pwd)"
 JAR_PATH="${PROJECT_ROOT}/target/practice-0.0.1-SNAPSHOT.jar"
 #PROFILE="${2:-prod}"
 PROFILE="${2:-dev}"
-SERVICE_PORT="8089"  # Порт вашего Spring приложения
+SERVICE_PORT="8095"  # Порт вашего Spring приложения
 HEALTH_CHECK_MAX_ATTEMPTS=30  # Максимальное количество попыток проверки
 HEALTH_CHECK_INTERVAL=2  # Интервал между проверками в секундах
 

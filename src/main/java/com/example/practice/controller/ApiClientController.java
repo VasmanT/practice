@@ -28,7 +28,7 @@ public class ApiClientController {
     private static final Logger log = LoggerFactory.getLogger(ApiClientController.class);
 
     private final RestTemplate restTemplate;
-    private final String externalApiUrl = "http://host.docker.internal:8091/api/players";
+    private final String externalApiUrl = "http://host.docker.internal:8096/api/players";
 
     public ApiClientController(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder
